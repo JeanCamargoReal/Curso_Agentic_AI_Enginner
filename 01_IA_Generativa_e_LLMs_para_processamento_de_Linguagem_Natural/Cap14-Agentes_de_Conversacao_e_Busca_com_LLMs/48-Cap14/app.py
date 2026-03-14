@@ -9,8 +9,8 @@ from langchain.agents import ConversationalChatAgent, AgentExecutor
 # Callback para interação com a interface do Streamlit
 from langchain_community.callbacks import StreamlitCallbackHandler  
 
-# Integração com o modelo de linguagem da OpenAI
-from langchain_openai import ChatOpenAI  
+# Integração com o modelo de linguagem do Google Gemini
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Memória para armazenar o histórico de conversa
 from langchain.memory import ConversationBufferMemory  
@@ -42,8 +42,8 @@ col1, col4 = st.columns([4, 1])
 with col1:
     st.title("Projeto 6 - Construção e Deploy de Interface Web Para Agente de Conversação e Busca com LangChain e LLM")
 
-# Campo para entrada da chave de API da OpenAI
-openai_api_key = st.sidebar.text_input("OpenAI API Key", type = "password")
+# Campo para entrada da chave de API do Google Gemini
+google_api_key = st.sidebar.text_input("Google Gemini API Key", type = "password")
 
 # Inicialização do histórico de mensagens
 # https://python.langchain.com/docs/integrations/memory/streamlit_chat_message_history/
@@ -96,13 +96,13 @@ if prompt := st.chat_input(placeholder = "Digite uma pergunta para começar!"):
     st.chat_message("user").write(prompt)
 
     # Verificação da chave de API
-    if not openai_api_key:
-        st.info("Adicione sua OpenAI API key para continuar.")
+    if not google_api_key:
+        st.info("Adicione sua Google Gemini API key para continuar.")
         st.stop()
 
-    # Configuração do modelo de linguagem da OpenAI
-    # https://python.langchain.com/docs/integrations/chat/openai/
-    llm_dsa = ChatOpenAI(openai_api_key = openai_api_key, streaming = True)
+    # Configuração do modelo de linguagem do Google Gemini
+    # https://python.langchain.com/docs/integrations/chat/google_generative_ai/
+    llm_dsa = ChatGoogleGenerativeAI(model="gemini-3.1", google_api_key=google_api_key, streaming=True)
     
     # Configuração da ferramenta de busca do agente
     # https://api.python.langchain.com/en/latest/tools/langchain_community.tools.ddg_search.tool.DuckDuckGoSearchRun.html
