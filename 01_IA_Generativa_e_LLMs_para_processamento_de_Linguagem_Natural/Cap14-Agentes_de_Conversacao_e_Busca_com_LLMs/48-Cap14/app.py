@@ -1,25 +1,25 @@
 # Projeto 6 - Construção e Deploy de Interface Web Para Agente de Conversação e Busca com LangChain e LLM
 
 # Framework para criação de aplicações web
-import streamlit as st  
+import streamlit as st
 
 # Para criação e execução de agentes conversacionais
-from langchain.agents import ConversationalChatAgent, AgentExecutor  
+from langchain.agents import ConversationalChatAgent, AgentExecutor
 
 # Callback para interação com a interface do Streamlit
-from langchain_community.callbacks import StreamlitCallbackHandler  
+from langchain_community.callbacks import StreamlitCallbackHandler
 
 # Integração com o modelo de linguagem do Google Gemini
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 # Memória para armazenar o histórico de conversa
-from langchain.memory import ConversationBufferMemory  
+from langchain.memory import ConversationBufferMemory
 
 # Histórico de mensagens para o Streamlit
-from langchain_community.chat_message_histories import StreamlitChatMessageHistory 
+from langchain_community.chat_message_histories import StreamlitChatMessageHistory
 
-# Ferramenta de busca DuckDuckGo para o agente 
-from langchain_community.tools import DuckDuckGoSearchRun  
+# Ferramenta de busca DuckDuckGo para o agente
+from langchain_community.tools import DuckDuckGoSearchRun
 
 # Pacote para manipulação dos dados em formato JSON
 import json
@@ -29,21 +29,24 @@ import requests
 
 # Remove warnings
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
 
 # Configuração do título da página
-st.set_page_config(page_title = "DSA")
+st.set_page_config(page_title="DSA")
 
 # Criação de colunas para layout da página
 # Define a proporção das colunas
-col1, col4 = st.columns([4, 1])  
+col1, col4 = st.columns([4, 1])
 
 # Configuração da primeira coluna para exibir o título do projeto
 with col1:
-    st.title("Projeto 6 - Construção e Deploy de Interface Web Para Agente de Conversação e Busca com LangChain e LLM")
+    st.title(
+        "Projeto 6 - Construção e Deploy de Interface Web Para Agente de Conversação e Busca com LangChain e LLM"
+    )
 
 # Campo para entrada da chave de API do Google Gemini
-google_api_key = st.sidebar.text_input("Google Gemini API Key", type = "password")
+google_api_key = st.sidebar.text_input("Google Gemini API Key", type="password")
 
 # Inicialização do histórico de mensagens
 # https://python.langchain.com/docs/integrations/memory/streamlit_chat_message_history/
@@ -51,10 +54,12 @@ msgs = StreamlitChatMessageHistory()
 
 # Configuração da memória do chat
 # https://python.langchain.com/docs/modules/memory/types/buffer/
-memory = ConversationBufferMemory(chat_memory = msgs, 
-                                  return_messages = True, 
-                                  memory_key = "chat_history", 
-                                  output_key = "output")
+memory = ConversationBufferMemory(
+    chat_memory=msgs,
+    return_messages=True,
+    memory_key="chat_history",
+    output_key="output",
+)
 
 # Verificação para limpar o histórico de mensagens ou iniciar a conversa
 if len(msgs.messages) == 0 or st.sidebar.button("Reset"):
@@ -67,32 +72,28 @@ avatars = {"human": "user", "ai": "assistant"}
 
 # Loop para exibir mensagens no chat
 # Itera sobre cada mensagem no histórico de mensagens
-for idx, msg in enumerate(msgs.messages):  
-
+for idx, msg in enumerate(msgs.messages):
     # Cria uma mensagem no chat com o avatar correspondente ao tipo de usuário (humano ou IA)
-    with st.chat_message(avatars[msg.type]):  
-
+    with st.chat_message(avatars[msg.type]):
         # Itera sobre os passos armazenados para cada mensagem, se houver
-        for step in st.session_state.steps.get(str(idx), []):  
-
+        for step in st.session_state.steps.get(str(idx), []):
             # Se o passo atual indica uma exceção, pula para o próximo passo
-            if step[0].tool == "_Exception":  
+            if step[0].tool == "_Exception":
                 continue
 
             # Cria um expander para cada ferramenta usada na resposta, mostrando o input
-            with st.expander(f"✅ **{step[0].tool}**: {step[0].tool_input}"): 
-
-                # Exibe o log de execução da ferramenta 
-                st.write(step[0].log)  
+            with st.expander(f"✅ **{step[0].tool}**: {step[0].tool_input}"):
+                # Exibe o log de execução da ferramenta
+                st.write(step[0].log)
 
                 # Exibe o resultado da execução da ferramenta
-                st.write(f"**{step[1]}**")  
+                st.write(f"**{step[1]}**")
 
         # Exibe o conteúdo da mensagem no chat
-        st.write(msg.content)  
+        st.write(msg.content)
 
 # Campo de entrada para novas mensagens do usuário
-if prompt := st.chat_input(placeholder = "Digite uma pergunta para começar!"):
+if prompt := st.chat_input(placeholder="Digite uma pergunta para começar!"):
     st.chat_message("user").write(prompt)
 
     # Verificação da chave de API
@@ -102,35 +103,41 @@ if prompt := st.chat_input(placeholder = "Digite uma pergunta para começar!"):
 
     # Configuração do modelo de linguagem do Google Gemini
     # https://python.langchain.com/docs/integrations/chat/google_generative_ai/
-    llm_dsa = ChatGoogleGenerativeAI(model="gemini-3.1", google_api_key=google_api_key, streaming=True)
-    
+    llm_dsa = ChatGoogleGenerativeAI(
+        model="gemini-3.1-preview", google_api_key=google_api_key, streaming=True
+    )
+
     # Configuração da ferramenta de busca do agente
     # https://api.python.langchain.com/en/latest/tools/langchain_community.tools.ddg_search.tool.DuckDuckGoSearchRun.html
-    mecanismo_busca = [DuckDuckGoSearchRun(name = "Search")]
-    
+    mecanismo_busca = [DuckDuckGoSearchRun(name="Search")]
+
     # Criação do agente conversacional com a ferramenta de busca
     # https://api.python.langchain.com/en/latest/agents/langchain.agents.conversational_chat.base.ConversationalChatAgent.html
-    chat_dsa_agent = ConversationalChatAgent.from_llm_and_tools(llm = llm_dsa, tools = mecanismo_busca)
-    
+    chat_dsa_agent = ConversationalChatAgent.from_llm_and_tools(
+        llm=llm_dsa, tools=mecanismo_busca
+    )
+
     # Executor para o agente, incluindo memória e tratamento de erros
     # https://api.python.langchain.com/en/latest/agents/langchain.agents.agent.AgentExecutor.html
-    executor = AgentExecutor.from_agent_and_tools(agent = chat_dsa_agent,
-                                                  tools = mecanismo_busca,
-                                                  memory = memory,
-                                                  return_intermediate_steps = True,
-                                                  handle_parsing_errors = True)
+    executor = AgentExecutor.from_agent_and_tools(
+        agent=chat_dsa_agent,
+        tools=mecanismo_busca,
+        memory=memory,
+        return_intermediate_steps=True,
+        handle_parsing_errors=True,
+    )
 
     # Exibição da resposta do assistente
     with st.chat_message("assistant"):
-
         # Callback para o Streamlit
         # https://api.python.langchain.com/en/latest/callbacks/langchain_community.callbacks.streamlit.streamlit_callback_handler.StreamlitCallbackHandler.html
-        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts = False)  
-        response = executor(prompt, callbacks = [st_cb])
+        st_cb = StreamlitCallbackHandler(st.container(), expand_new_thoughts=False)
+        response = executor(prompt, callbacks=[st_cb])
         st.write(response["output"])
 
         # Armazenamento dos passos intermediários
-        st.session_state.steps[str(len(msgs.messages) - 1)] = response["intermediate_steps"]  
+        st.session_state.steps[str(len(msgs.messages) - 1)] = response[
+            "intermediate_steps"
+        ]
 
 # Fim
-
