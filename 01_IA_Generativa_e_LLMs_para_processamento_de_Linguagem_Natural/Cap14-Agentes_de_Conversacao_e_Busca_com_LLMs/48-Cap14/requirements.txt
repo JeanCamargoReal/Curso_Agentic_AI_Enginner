@@ -16,7 +16,7 @@ bleach==6.2.0
 blinker==1.9.0
 cachetools==6.1.0
 certifi==2025.8.3
-cffi==1.17.1
+cffi>=2.0.0b1
 charset-normalizer==3.4.2
 click==8.2.1
 comm==0.2.3
@@ -64,7 +64,7 @@ jupyterlab_server==2.27.3
 langchain==0.3.27
 langchain-community==0.3.27
 langchain-core==0.3.72
-langchain-google-genai==4.2.1
+langchain-google-genai==2.0.11
 langchain-text-splitters==0.3.9
 langsmith==0.4.11
 lark==1.2.2
