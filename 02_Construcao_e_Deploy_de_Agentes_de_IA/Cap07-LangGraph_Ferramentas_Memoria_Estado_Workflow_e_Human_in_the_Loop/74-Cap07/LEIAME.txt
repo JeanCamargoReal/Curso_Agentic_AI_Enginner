@@ -1,0 +1,26 @@
+# Estudo de Caso 2 - LangGraph Para Construção de Agentes de IA - Ferramentas, Memória, Estado, Workflow e Human-in-the-Loop
+
+# Abra o terminal ou prompt de comando, navegue até a pasta com os arquivos e execute o comando abaixo para criar um ambiente virtual:
+
+conda create --name agenticaidsaec2 python=3.12
+
+# Ative o ambiente:
+
+conda activate agenticaidsaec2 (ou: source activate agenticaidsaec2)
+
+# Instale o pip e as dependências:
+
+conda install pip
+pip install -r requirements.txt 
+
+# Execute o comando abaixo e acesse pelo navegador:
+
+jupyter notebook
+
+# Use os comandos abaixo para desativar o ambiente virtual e remover o ambiente (opcional):
+
+conda deactivate
+conda remove --name agenticaidsaec2 --all
+
+
+
